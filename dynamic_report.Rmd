@@ -1,0 +1,124 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+library(tidyverse)
+
+form_url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAD4pmNsvX_VPGpldfPmP8HhuGrVa0UXMXrAprTFpvUORIEWT-Av9Gwowh7NmXqUrNHK8vREjU9J5M/pub?output=csv"
+
+logged_data <- read_csv(form_url)
+
+latest_data <- logged_data %>%
+  rename(
+    timestamp = Timestamp,
+    location = `Where are you making this observation?`,
+    people_count = `How many people are in the study space at the time of observation?`,
+    noise_level = `What is the overall noise level?`
+  ) %>%
+  mutate(
+    people_count = as.numeric(people_count),
+    noise_level = factor(
+      noise_level,
+      levels = c("Very quiet", "Mostly quiet", "Moderate", "Noisy", "Very noisy")
+    )
+  )
+
+report_summary <- latest_data %>%
+  summarise(
+    total_observations = n(),
+    mean_people = round(mean(people_count, na.rm = TRUE), 1),
+    max_people = max(people_count, na.rm = TRUE)
+  )
+
+location_counts <- latest_data %>%
+  count(location, sort = TRUE)
+
+noise_counts <- latest_data %>%
+  count(noise_level, sort = TRUE)
+
+top_location <- location_counts %>%
+  slice(1) %>%
+  pull(location)
+
+top_location_n <- location_counts %>%
+  slice(1) %>%
+  pull(n)
+
+common_noise <- noise_counts %>%
+  slice(1) %>%
+  pull(noise_level)
+
+common_noise_n <- noise_counts %>%
+  slice(1) %>%
+  pull(n)
+```
+
+```{css}
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  line-height: 1.6;
+}
+
+h2, h3 {
+  color: #2c3e50;
+}
+
+.dynamic-comment {
+  background-color: #eef6ff;
+  border-left: 5px solid #5b8def;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+}
+```
+
+## Study space observations on campus
+
+This dynamic report summarises observational logging data collected from campus study spaces.  
+The report focuses on where observations were made, how many people were present, and the overall noise level.
+
+<div class="dynamic-comment">
+There are <strong>`r report_summary$total_observations`</strong> observations in this dataset.  
+The average number of people observed was <strong>`r report_summary$mean_people`</strong>, and the highest number observed in a study space was <strong>`r report_summary$max_people`</strong>.
+</div>
+
+<div class="dynamic-comment">
+The most frequently observed study space was <strong>`r top_location`</strong> with <strong>`r top_location_n`</strong> observations.  
+The most common noise level was <strong>`r common_noise`</strong> with <strong>`r common_noise_n`</strong> observations.
+</div>
+
+### Number of observations by study space
+
+```{r}
+latest_data %>%
+  ggplot(aes(x = location)) +
+  geom_bar() +
+  labs(
+    title = "Number of observations by study space",
+    subtitle = "Study space observation log",
+    x = "Study space",
+    y = "Number of observations"
+  ) +
+  coord_flip() +
+  theme_minimal()
+```
+
+### Noise level across observations
+
+```{r}
+latest_data %>%
+  ggplot(aes(x = noise_level)) +
+  geom_bar() +
+  labs(
+    title = "Noise level across observations",
+    subtitle = "Study space observation log",
+    x = "Noise level",
+    y = "Number of observations"
+  ) +
+  theme_minimal()
+```
