@@ -82,15 +82,13 @@ h2, h3 {
 This dynamic report summarises observational logging data collected from campus study spaces.  
 The report focuses on where observations were made, how many people were present, and the overall noise level.
 
-<div class="dynamic-comment">
-There are <strong>`r report_summary$total_observations`</strong> observations in this dataset.  
-The average number of people observed was <strong>`r report_summary$mean_people`</strong>, and the highest number observed in a study space was <strong>`r report_summary$max_people`</strong>.
-</div>
+### Dynamic comments
 
-<div class="dynamic-comment">
-The most frequently observed study space was <strong>`r top_location`</strong> with <strong>`r top_location_n`</strong> observations.  
-The most common noise level was <strong>`r common_noise`</strong> with <strong>`r common_noise_n`</strong> observations.
-</div>
+- There are **`r report_summary$total_observations`** observations in this dataset.
+- The average number of people observed was **`r report_summary$mean_people`**.
+- The highest number observed in a study space was **`r report_summary$max_people`**.
+- The most frequently observed study space was **`r top_location`** with **`r top_location_n`** observations.
+- The most common noise level was **`r common_noise`** with **`r common_noise_n`** observations.
 
 ### Number of observations by study space
 
